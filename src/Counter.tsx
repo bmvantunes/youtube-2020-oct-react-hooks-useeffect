@@ -4,39 +4,32 @@ export interface CounterProps {
   description: string;
 }
 
+export interface Todo {
+  userId: number;
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
 export function Counter({ description }: CounterProps) {
   const [count, setCount] = useState(0);
+  const [todo, setTodo] = useState<Todo>();
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      console.log('from cancel timeout', description);
-    }, 3000);
-
-    return () => {
-      clearTimeout(id);
-    };
-  }, [description]);
-
-  useEffect(() => {
-    let currentRender = true;
-
-    setTimeout(() => {
-      if (currentRender) {
-        console.log('from variable', description);
-      } else {
-        console.log('UPS I am done');
-      }
-    }, 3000);
-
-    return () => {
-      currentRender = false;
-    };
+    async function loadData() {
+      const resp = await fetch(
+        'https://jsonplaceholder.typicode.com/todos/' + description
+      );
+      const json = await resp.json();
+      setTodo(json);
+    }
+    loadData();
   }, [description]);
 
   return (
     <div>
       <h5>DESC: {description}</h5>
-
+      {todo?.title}
       <button onClick={() => setCount(count - 1)}>-</button>
       {count}
       <button onClick={() => setCount(count + 1)}>+</button>
